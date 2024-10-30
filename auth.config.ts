@@ -7,19 +7,13 @@ export const authConfig: NextAuthConfig = {
   callbacks: {
     authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user;
-      
-      // Public paths ko define karein
-      const isPublicPath = ['/login', '/', '/register'].includes(
-        nextUrl.pathname
-      );
+      const isOnDashboard = nextUrl.pathname.startsWith('/dashboard');
 
-      // Agar user logged in nahi hai aur protected route par jane ki koshish kar raha hai
-      if (!isLoggedIn && !isPublicPath) {
-        return false; // authentication fail
+      if (isOnDashboard && !isLoggedIn) {
+        return Response.redirect(new URL('/login', nextUrl));
       }
 
-      // Agar user logged in hai aur public path par jana chahta hai
-      if (isLoggedIn && isPublicPath) {
+      if (isLoggedIn && nextUrl.pathname === '/login') {
         return Response.redirect(new URL('/dashboard', nextUrl));
       }
 
